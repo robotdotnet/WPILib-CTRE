@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
-using CTRE.NativeLibraryUtilities;
+using NativeLibraryUtilities;
 using HAL.Base;
 
 namespace CTRE
