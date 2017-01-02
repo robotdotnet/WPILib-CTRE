@@ -8,7 +8,11 @@ branches:
 nuget:
   disable_publish_on_pr: true
 build_script:
-- ps: ./netcore.ps1 -build
+- ps: >-
+    ./downloadCompiler.ps1
+    ./gradlew build
+    ./netcore.ps1 -build
+
 test_script:
 - ps: >-
     

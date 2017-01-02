@@ -258,4 +258,5 @@ src/FRC.OpenCvSharp.DesktopLibraries/Libraries/temp/
 !src/FRC.OpenCvSharp.DesktopLibraries/Libraries/amd64/*
 !src/FRC.OpenCvSharp.DesktopLibraries/Libraries/x86/*
 
-!src/FRC.WPILib.CTRE/Libraries/*
+temp/*
+src/FRC.WPILib.CTRE/Libraries/libctreextern.so
