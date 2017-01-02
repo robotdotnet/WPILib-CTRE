@@ -10,7 +10,9 @@ nuget:
 build_script:
 - ps: >-
     ./downloadCompiler.ps1
+
     ./gradlew build
+    
     ./netcore.ps1 -build
 
 test_script:
