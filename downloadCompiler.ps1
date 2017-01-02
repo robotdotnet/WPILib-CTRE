@@ -1,4 +1,9 @@
-$localFolder = ".\temp"
+
+if ($env:APPVEYOR) {
+    $localFolder = "$env:APPVEYOR_BUILD_FOLDER\temp"
+} else {
+    $localFolder = ".\temp"
+}
 
 # Create temp directory to store stuff in
 if ((Test-Path $localFolder) -eq $false) {
@@ -22,4 +27,4 @@ echo "Extracting Compiler"
 Unzip($compilerName)
 
 echo "Adding compiler to path"
-$env:Path += ";.\temp\compiler\frc\bin"
+$env:Path += ";$localFolder\compiler\frc\bin"
