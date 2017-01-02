@@ -10,11 +10,17 @@ nuget:
 build_script:
 - ps: >-
     ./downloadCompiler.ps1
+
     if($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode )  }
+
     ./gradlew build
+
     if($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode )  }
+
     ./netcore.ps1 -build
+
     if($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode )  }
+    
 test_script:
 - ps: >-
     
