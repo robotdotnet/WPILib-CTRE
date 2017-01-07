@@ -35,12 +35,12 @@
   "frameworks": {
     "net451": {
       "dependencies": {
-        "FRC.WPILib": "2017.0.1-beta2"
+        "FRC.WPILib": "2017.0.1"
       }
     }
   },
   "dependencies": {
-    "NativeLibraryUtilities": "1.0.0-rc3"
+    "NativeLibraryUtilities": "1.0.0"
   },
   "configurations": {
     "Debug": {

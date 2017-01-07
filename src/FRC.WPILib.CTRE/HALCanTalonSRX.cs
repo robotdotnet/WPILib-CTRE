@@ -228,11 +228,11 @@ namespace CTRE
                         // RoboRIO
                         if (s_useCommandLineFile)
                         {
-                            NativeLoader.LoadNativeLibrary<HALCanTalonSRX>(new RoboRioLibraryLoader(), s_libraryLocation, true);
+                            NativeLoader.LoadNativeLibrary<HALCanTalonSRX>(s_libraryLocation, true);
                         }
                         else
                         {
-                            NativeLoader.LoadNativeLibrary<HALCanTalonSRX>(new RoboRioLibraryLoader(), resourceRoot + "libctreextern.so");
+                            NativeLoader.LoadNativeLibrary<HALCanTalonSRX>(resourceRoot + "libctreextern.so");
                             s_libraryLocation = NativeLoader.LibraryLocation;
                         }
                     }
