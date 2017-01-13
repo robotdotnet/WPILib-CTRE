@@ -2,7 +2,8 @@ import org.gradle.internal.os.OperatingSystem
 
 plugins {
     id 'net.ltgt.errorprone' version '0.0.8'
-    id 'edu.wpi.first.wpilib.versioning.WPILibVersioningPlugin' version '1.4'
+    id 'edu.wpi.first.wpilib.versioning.WPILibVersioningPlugin' version '1.6'
+    id "de.undercouch.download" version "3.1.2"
 }
 
 allprojects {
@@ -11,9 +12,13 @@ allprojects {
     }
 }
 
-ext.useDriver = true
+import de.undercouch.gradle.tasks.download.Download
 
-ext.compilerPrefixToUse = project.hasProperty('compilerPrefix') ? project.compilerPrefix : 'arm-frc-linux-gnueabi-'
+if (!hasProperty('releaseType')) {
+    WPILibVersion {
+        releaseType = 'official'
+    }
+}
 
 ext.setupDefines = { project, binaries ->
     binaries.all {
@@ -25,61 +30,81 @@ ext.setupDefines = { project, binaries ->
     }
 }
 
-apply from: "locations.gradle"
+ext.ctreUnzipLocation = "${buildDir}/ctre"
 
-ext.addUserLinks = { linker, targetPlatform, implLib ->
-    def libPattern = /.*((\\/|\\).*)+lib(?<libName>.+).(.+)$/
-    def libraryArgs = []
-    def libraryPath = file(driverLibraryLib).path
+task downloadCtreSdk(type: Download) {
+    src 'http://www.ctr-electronics.com//downloads/lib/CTRE_FRCLibs_NON-WINDOWS.zip'
+    dest buildDir
+}
 
-    // adds all libraries found in the driver folder
-    def libraryTree = fileTree(libraryPath)
-    libraryTree.include '*.so'
-    libraryTree.include '*.a'
-
-    libraryTree.each { lib ->
-        def nameMatcher = (lib.path =~ libPattern)
-        if (nameMatcher[0].size() > 1) {
-            def name = nameMatcher.group('libName')
-            libraryArgs << '-l' + name
-        }
-    }
+task unzipCtreSdk(type: Copy) {
+    dependsOn downloadCtreSdk
     
-    if (implLib) {
-        // adds all libraries found in the impl folder
-        def implLibraryPath = file(cppLibraryLib).path
-        def implLibraryTree = fileTree(implLibraryPath)
-        implLibraryTree.include '*.so'
-        implLibraryTree.include '*.a'
+    from zipTree("${buildDir}/CTRE_FRCLibs_NON-WINDOWS.zip")
+    into ctreUnzipLocation
+}
 
-        implLibraryTree.each { lib ->
-            def nameMatcher = (lib.path =~ libPattern)
-            if (nameMatcher[0].size() > 1) {
-                def name = nameMatcher.group('libName')
-                libraryArgs << '-l' + name
-            }
-        }
-    }
-     
-    // Add all arguments
+ext.ctre = ctreUnzipLocation
+ext.ctreInclude = "$ctreUnzipLocation/cpp/include"
+ext.ctreLocation = "$ctreUnzipLocation/cpp/lib"
+ext.ctreStaticLib = "$ctreLocation/libTalonSRXLib.a"
+
+ext.addCtreLinks = { compileTask, linker, targetPlatform ->
+    compileTask.dependsOn project(':').unzipCtreSdk
     String architecture = targetPlatform.architecture
-    if (architecture.contains('arm')){
+    if (architecture.contains('arm')) {
+        // Grab the static library and link it
+        linker.args ctreStaticLib
+
+        def libraryPath = ctreLocation
+
         linker.args << '-L' + libraryPath
-        linker.args.addAll(libraryArgs)
     }
 }
 
-apply from: "properties.gradle"
+apply from: "locations.gradle"
 
 apply from: "dependencies.gradle"
 
-if (useDriver) {
-    apply from: "driver.gradle"
+defineWpiUtilProperties()
+defineHALProperties()
+
+apply plugin: 'cpp'
+
+apply from: "${rootDir}/toolchains/arm.gradle"
+
+model {
+    components {
+        ctreextern(NativeLibrarySpec) {
+            targetPlatform 'arm'
+            setupDefines(project, binaries)
+
+            binaries.all {
+                tasks.withType(CppCompile) {
+                    cppCompiler.args "-DNAMESPACED_WPILIB"
+                    addCtreLinks(it, linker, targetPlatform)
+                    addHalLibraryLinks(it, linker, targetPlatform)
+                    addWpiUtilLibraryLinks(it, linker, targetPlatform)
+                }
+            }
+
+            sources {
+                cpp {
+                    source {
+                        srcDirs = [driverSrc]
+                        includes = ["**/*.cpp",]
+                    }
+                    exportedHeaders {
+                        srcDirs = [driverInclude, halInclude, wpiUtilInclude, ctreInclude]
+                        includes = ['**/*.h']
+                    }
+                }
+            }
+        }
+    }
 }
 
-// Empty task for build so that zips will be
-// built when running ./gradlew build
-task build
+project.debugStripSetup()
 
 def netDir = "${rootDir}/src/FRC.WPILib.CTRE/Libraries"
 
@@ -88,7 +113,7 @@ task copyToNet(type: Copy) {
     group = 'WPILib'
     destinationDir = file(netDir)
 
-    project(':arm:driver').model {
+    project.model {
             binaries {
                 withType(SharedLibraryBinarySpec) { binary ->
                     from(binary.sharedLibraryFile) {
@@ -99,7 +124,7 @@ task copyToNet(type: Copy) {
         }
 }
 
-project(':arm:driver').tasks.whenTaskAdded { task ->
+project.tasks.whenTaskAdded { task ->
     def name = task.name.toLowerCase()
     if (name.contains("sharedlibrary") || name.contains("staticlibrary")) {
         copyToNet.dependsOn task
@@ -108,16 +133,11 @@ project(':arm:driver').tasks.whenTaskAdded { task ->
 
 build.dependsOn copyToNet
 
-task clean(type: Delete) {
-    description = "Deletes the build directory"
-    group = "Build"
-    delete buildDir
-}
-
 clean {
+    delete buildDir
     delete releaseDir
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.2.1'
+    gradleVersion = '3.3'
 }
