@@ -35,7 +35,7 @@
   "frameworks": {
     "net451": {
       "dependencies": {
-        "FRC.WPILib": "2017.0.2"
+        "FRC.WPILib": "2017.0.3"
       }
     }
   },
