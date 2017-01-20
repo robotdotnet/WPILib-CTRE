@@ -33,21 +33,21 @@ ext.setupDefines = { project, binaries ->
 ext.ctreUnzipLocation = "${buildDir}/ctre"
 
 task downloadCtreSdk(type: Download) {
-    src 'http://www.ctr-electronics.com//downloads/lib/CTRE_FRCLibs_NON-WINDOWS.zip'
+    src 'http://www.ctr-electronics.com//downloads/lib/CTRE_FRCLibs_NON-WINDOWS_v4.4.1.9.zip'
     dest buildDir
 }
 
 task unzipCtreSdk(type: Copy) {
     dependsOn downloadCtreSdk
     
-    from zipTree("${buildDir}/CTRE_FRCLibs_NON-WINDOWS.zip")
+    from zipTree("${buildDir}/CTRE_FRCLibs_NON-WINDOWS_v4.4.1.9.zip")
     into ctreUnzipLocation
 }
 
 ext.ctre = ctreUnzipLocation
 ext.ctreInclude = "$ctreUnzipLocation/cpp/include"
 ext.ctreLocation = "$ctreUnzipLocation/cpp/lib"
-ext.ctreStaticLib = "$ctreLocation/libTalonSRXLib.a"
+ext.ctreStaticLib = "$ctreLocation/libCTRLib.a"
 
 ext.addCtreLinks = { compileTask, linker, targetPlatform ->
     compileTask.dependsOn project(':').unzipCtreSdk
