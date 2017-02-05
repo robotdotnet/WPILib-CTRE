@@ -225,6 +225,7 @@ namespace CTRE
                     if (File.Exists("/usr/local/frc/bin/frcRunRobot.sh"))
                     {
                         NativeLoader = new NativeLibraryLoader();
+                        NativeLoader.AddLibraryLocation(OsType.roboRIO, resourceRoot + "libctreextern.so");
                         // RoboRIO
                         if (s_useCommandLineFile)
                         {
@@ -232,7 +233,7 @@ namespace CTRE
                         }
                         else
                         {
-                            NativeLoader.LoadNativeLibrary<HALCanTalonSRX>(resourceRoot + "libctreextern.so");
+                            NativeLoader.LoadNativeLibrary<HALCanTalonSRX>();
                             s_libraryLocation = NativeLoader.LibraryLocation;
                         }
                     }
