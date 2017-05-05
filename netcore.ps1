@@ -110,7 +110,7 @@ function UploadAppVeyorTestResults {
 }
 
 function Build {
-  exec { & dotnet restore }
+  exec { & dotnet restore src\FRC.WPILib.CTRE\FRC.WPILib.CTRE.csproj }
   echo $configuration
   
   exec { & dotnet build src\FRC.WPILib.CTRE $configuration /p:VersionPrefix=$version /p:VersionSuffix=$revision }
