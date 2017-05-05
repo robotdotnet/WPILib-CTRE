@@ -83,7 +83,7 @@ echo $version
 echo $type
 echo $buildNumber
 
-$revision = "--version-suffix=" + $type + $buildNumber
+$revision = "" + $type + $buildNumber
 
 If ($debug) {
  $configuration = "-c=Debug"
@@ -113,30 +113,19 @@ function Build {
   exec { & dotnet restore }
   echo $configuration
   
-  exec { & dotnet build src\FRC.WPILib.CTRE $configuration $revision }
+  exec { & dotnet build src\FRC.WPILib.CTRE $configuration /p:VersionPrefix=$version /p:VersionSuffix=$revision }
 
 }
 
 function Pack { 
   if (Test-Path .\artifacts) { Remove-Item .\artifacts -Force -Recurse }
 
-  exec { & dotnet pack src\FRC.WPILib.CTRE $configuration $revision --no-build -o .\artifacts }
+  exec { & dotnet pack src\FRC.WPILib.CTRE $configuration --no-build -o .\artifacts /p:VersionPrefix=$version /p:VersionSuffix=$revision }
 
   if ($env:APPVEYOR) {
     Get-ChildItem .\artifacts\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
   }
 }
-
- if ((Test-Path .\buildTemp) -eq $false) {
-  md .\buildTemp
- }
-
-# Remove beta defintion from project.json files
-Copy-Item src\FRC.WPILib.CTRE\project.json buildTemp\FRC.WPILib.CTRE.projectjson
-
-$netTablesJson = Get-Content 'src\FRC.WPILib.CTRE\project.json' -raw | ConvertFrom-Json
-$netTablesJson.version = $version + "-*"
-$netTablesJson | ConvertTo-Json -Depth 5 | Set-Content 'src\FRC.WPILib.CTRE\project.json'
 
 if ($build) {
  Build
@@ -145,8 +134,3 @@ if ($build) {
 if ($pack) {
  Pack
 }
-
-# Add beta definition back into project.json
-Copy-Item buildTemp\FRC.WPILib.CTRE.projectjson src\FRC.WPILib.CTRE\project.json
-
-Remove-Item buildTemp\FRC.WPILib.CTRE.projectjson

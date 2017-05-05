@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>.NET Wrappers for the CTRE libraries</Description>
+    <Copyright>Copyright 2016 RobotDotNet, CTRE</Copyright>
+    <AssemblyTitle>FRC WPILib.CTRE</AssemblyTitle>
+    <VersionPrefix>2017.0.1</VersionPrefix>
+    <VersionSuffix>local</VersionSuffix>
+    <Authors>RobotDotNet</Authors>
+    <TargetFramework>net451</TargetFramework>
+    <NoWarn>$(NoWarn);CS0649</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AssemblyName>FRC.WPILib.CTRE</AssemblyName>
+    <PackageId>FRC.WPILib.CTRE</PackageId>
+    <PackageTags>WPILib;FRC;FIRST;RoboRio</PackageTags>
+    <PackageProjectUrl>https://github.com/robotdotnet/FRC-OpenCvSharp</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/robotdotnet/FRC-OpenCvSharp/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>git://github.com/robotdotnet/FRC-OpenCvSharp</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Libraries\libctreextern.so" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NativeLibraryUtilities" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
+    <PackageReference Include="FRC.WPILib" Version="2017.0.3" />
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+</Project>
