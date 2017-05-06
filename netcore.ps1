@@ -110,7 +110,7 @@ function UploadAppVeyorTestResults {
 }
 
 function Build {
-  exec { & dotnet restore src\FRC.WPILib.CTRE\FRC.WPILib.CTRE.csproj }
+  exec { & dotnet restore }
   echo $configuration
   
   exec { & dotnet build src\FRC.WPILib.CTRE $configuration /p:VersionPrefix=$version /p:VersionSuffix=$revision }
@@ -118,12 +118,12 @@ function Build {
 }
 
 function Pack { 
-  if (Test-Path .\artifacts) { Remove-Item .\artifacts -Force -Recurse }
+  if (Test-Path $pwd\artifacts) { Remove-Item $pwd\artifacts -Force -Recurse }
 
-  exec { & dotnet pack src\FRC.WPILib.CTRE $configuration --no-build -o .\artifacts /p:VersionPrefix=$version /p:VersionSuffix=$revision }
+  exec { & dotnet pack src\FRC.WPILib.CTRE $configuration --no-build -o $pwd\artifacts /p:VersionPrefix=$version /p:VersionSuffix=$revision }
 
   if ($env:APPVEYOR) {
-    Get-ChildItem .\artifacts\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+    Get-ChildItem $pwd\artifacts\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
   }
 }
 
