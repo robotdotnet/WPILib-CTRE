@@ -7,7 +7,6 @@ branches:
   - master
 nuget:
   disable_publish_on_pr: true
-  account_feed: true
 
 install:
 ##   # .NET Core SDK binaries
