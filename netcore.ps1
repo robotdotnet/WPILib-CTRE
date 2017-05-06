@@ -120,7 +120,7 @@ function Build {
 function Pack { 
   if (Test-Path $pwd\artifacts) { Remove-Item $pwd\artifacts -Force -Recurse }
 
-  exec { & dotnet pack src\FRC.WPILib.CTRE $configuration --no-build -o $pwd\artifacts /p:VersionPrefix=$version /p:VersionSuffix=$revision }
+  exec { & dotnet pack src\FRC.WPILib.CTRE $configuration --no-build -s -o $pwd\artifacts --include-source /p:VersionPrefix=$version /p:VersionSuffix=$revision }
 
   if ($env:APPVEYOR) {
     Get-ChildItem $pwd\artifacts\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
