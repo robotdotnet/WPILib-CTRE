@@ -3,7 +3,7 @@ import org.gradle.internal.os.OperatingSystem
 plugins {
     id 'net.ltgt.errorprone' version '0.0.8'
     id 'edu.wpi.first.wpilib.versioning.WPILibVersioningPlugin' version '1.6'
-    id "de.undercouch.download" version "3.1.2"
+    id "de.undercouch.download" version "3.2.0"
 }
 
 allprojects {
@@ -31,10 +31,14 @@ ext.setupDefines = { project, binaries ->
 }
 
 ext.ctreUnzipLocation = "${buildDir}/ctre"
+ext.compilerUnzipLocation = "${buildDir}/compiler"
+
 
 task downloadCtreSdk(type: Download) {
     src 'http://www.ctr-electronics.com//downloads/lib/CTRE_FRCLibs_NON-WINDOWS_v4.4.1.9.zip'
     dest buildDir
+    overwrite false
+    onlyIfNewer true
 }
 
 task unzipCtreSdk(type: Copy) {
@@ -42,6 +46,24 @@ task unzipCtreSdk(type: Copy) {
     
     from zipTree("${buildDir}/CTRE_FRCLibs_NON-WINDOWS_v4.4.1.9.zip")
     into ctreUnzipLocation
+}
+
+task downloadCompiler(type: Download) {
+    src 'http://first.wpi.edu/FRC/roborio/toolchains/FRC-2017-Windows-Toolchain-4.9.3.zip'
+    dest buildDir
+    overwrite false
+    onlyIfNewer true
+}
+
+task unzipCompiler(type: Copy) {
+    dependsOn downloadCompiler
+    
+    from zipTree("${buildDir}/FRC-2017-Windows-Toolchain-4.9.3.zip")
+    into compilerUnzipLocation
+}
+
+if (new File(compilerUnzipLocation).exists()) {
+    ext.toolChainPath = "${compilerUnzipLocation}/frc/bin"
 }
 
 ext.ctre = ctreUnzipLocation
@@ -139,5 +161,5 @@ clean {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.3'
+    gradleVersion = '3.5'
 }

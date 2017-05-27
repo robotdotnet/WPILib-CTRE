@@ -9,28 +9,18 @@ nuget:
   disable_publish_on_pr: true
 
 build_script:
-- ps: >-
-    ./downloadCompiler.ps1
+- ps: .\build.ps1
+ 
+test: off
+ 
+artifacts:
+# Store NuGet packages
+- path: .\Artifacts\**\*.nupkg
+  name: NuGet
 
-    if($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode )  }
+cache:
+  - C:\Users\appveyor\.gradle
 
-    ./gradlew build
-
-    if($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode )  }
-
-    ./netcore.ps1 -build
-
-    if($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode )  }
-    
-test_script:
-- ps: >-
-    
-    If (($env:APPVEYOR_REPO_BRANCH -eq "master") -and (!$env:APPVEYOR_PULL_REQUEST_NUMBER)) {
-
-    .\netcore.ps1 -updatexml -pack 
-
-
-    }
 deploy:
 - provider: NuGet
   api_key:
