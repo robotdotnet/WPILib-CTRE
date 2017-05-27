@@ -43,6 +43,9 @@
 /.gradle
 /build*
 !build.gradle
+!build.sh
+!build.ps1
+!build.cake
 /native
 /arm
 /gmock/build
